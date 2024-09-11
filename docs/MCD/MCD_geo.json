@@ -1,0 +1,53 @@
+{
+  "width": 824,
+  "height": 413,
+  "cx": [
+    [ "LOCAL", 80 ],
+    [ "CONTENIR", 223 ],
+    [ "CONSULTER", 500 ],
+    [ "CONCERNER", 80 ],
+    [ "RESERVATION", 223 ],
+    [ "SUPPRIMER", 365 ],
+    [ "MEMBRE", 500 ],
+    [ "APPARTENIR", 613 ],
+    [ "DEPARTEMENT", 753 ],
+    [ "MODIFIER", 365 ],
+    [ "POSSEDER", 500 ],
+    [ "STATUT", 613 ],
+    [ "EFFECTUER", 365 ]
+  ],
+  "cy": [
+    [ "LOCAL", 68 ],
+    [ "CONTENIR", 68 ],
+    [ "CONSULTER", 68 ],
+    [ "CONCERNER", 203 ],
+    [ "RESERVATION", 203 ],
+    [ "SUPPRIMER", 203 ],
+    [ "MEMBRE", 203 ],
+    [ "APPARTENIR", 203 ],
+    [ "DEPARTEMENT", 203 ],
+    [ "MODIFIER", 304 ],
+    [ "POSSEDER", 304 ],
+    [ "STATUT", 304 ],
+    [ "EFFECTUER", 379 ]
+  ],
+  "shift": [
+    [ "CONTENIR,LOCAL,-1_0", 0 ],
+    [ "CONTENIR,LOCAL,1_0", 0 ],
+    [ "CONSULTER,MEMBRE,0", 0 ],
+    [ "CONSULTER,RESERVATION,0", 0 ],
+    [ "CONCERNER,RESERVATION,0", 0 ],
+    [ "CONCERNER,LOCAL,0", 0 ],
+    [ "SUPPRIMER,MEMBRE,0", 0 ],
+    [ "SUPPRIMER,RESERVATION,0", 0 ],
+    [ "APPARTENIR,MEMBRE,0", 0 ],
+    [ "APPARTENIR,DEPARTEMENT,0", 0 ],
+    [ "MODIFIER,MEMBRE,0", 0 ],
+    [ "MODIFIER,RESERVATION,0", 0 ],
+    [ "POSSEDER,MEMBRE,0", 0 ],
+    [ "POSSEDER,STATUT,0", 0 ],
+    [ "EFFECTUER,MEMBRE,0", 0 ],
+    [ "EFFECTUER,RESERVATION,0", 0 ]
+  ],
+  "ratio": []
+}
