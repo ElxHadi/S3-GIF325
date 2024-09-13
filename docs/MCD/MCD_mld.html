@@ -2,6 +2,31 @@
 
 <div class="mld">
 <div>
+  <details><summary><span class='relation'>ATTRIBUER</span> (
+    <span class='foreign primary'>#pavillon</span>,
+    <span class='foreign primary'>#numéro</span>,
+    <span class='foreign primary'>#code_caractéristique</span>,
+    <span class='normal'>effectif</span>
+  )</summary>
+  <ul>
+    <li>Les champs <i>pavillon</i> et <i>numéro</i> font partie de la clé primaire de la table. Ce sont des clés étrangères qui ont migré directement à partir de l'entité <i>LOCAL</i>.</li>
+    <li>Le champ <i>code_caractéristique</i> fait partie de la clé primaire de la table. C'est une clé étrangère qui a migré directement à partir de l'entité <i>CARACTÉRISTIQUE</i>.</li>
+    <li>Le champ <i>effectif</i> était déjà un simple attribut de l'association <i>ATTRIBUER</i>.</li>
+  </ul></details>
+</div>
+
+<div>
+  <details><summary><span class='relation'>CARACTÉRISTIQUE</span> (
+    <span class='primary'>code_caractéristique</span>,
+    <span class='normal'>nom_caractéristique</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>code_caractéristique</i> constitue la clé primaire de la table. C'était déjà un identifiant de l'entité <i>CARACTÉRISTIQUE</i>.</li>
+    <li>Le champ <i>nom_caractéristique</i> était déjà un simple attribut de l'entité <i>CARACTÉRISTIQUE</i>.</li>
+  </ul></details>
+</div>
+
+<div>
   <details><summary><span class='relation'>CONSULTER</span> (
     <span class='foreign primary'>#cip</span>,
     <span class='foreign primary'>#id_réservation</span>,
@@ -31,13 +56,12 @@
     <span class='primary'>numéro</span>,
     <span class='normal'>catégorie</span>,
     <span class='normal'>capacité</span>,
-    <span class='normal'>code_caractéristiques</span>,
     <span class='foreign'>#pavillon 2</span>,
     <span class='foreign'>#numéro 2</span>
   )</summary>
   <ul>
     <li>Les champs <i>pavillon</i> et <i>numéro</i> constituent la clé primaire de la table. C'étaient déjà des identifiants de l'entité <i>LOCAL</i>.</li>
-    <li>Les champs <i>catégorie</i>, <i>capacité</i> et <i>code_caractéristiques</i> étaient déjà de simples attributs de l'entité <i>LOCAL</i>.</li>
+    <li>Les champs <i>catégorie</i> et <i>capacité</i> étaient déjà de simples attributs de l'entité <i>LOCAL</i>.</li>
     <li>Les champs <i>pavillon 2</i> et <i>numéro 2</i> sont des clés étrangères. Ils ont migré par l'association de dépendance fonctionnelle <i>CONTENIR</i> à partir de l'entité <i>LOCAL</i> en perdant leur caractère identifiant.</li>
   </ul></details>
 </div>
@@ -74,23 +98,23 @@
     <span class='normal'>date_début</span>,
     <span class='normal'>date_fin</span>,
     <span class='normal'>description</span>,
+    <span class='foreign'>#cip 1</span>,
+    <span class='normal'>date_modification</span>,
+    <span class='foreign'>#cip 2</span>,
+    <span class='normal'>date_suppression</span>,
     <span class='foreign'>#pavillon</span>,
     <span class='foreign'>#numéro</span>,
-    <span class='foreign'>#cip 1</span>,
-    <span class='normal'>date_suppression</span>,
-    <span class='foreign'>#cip 2</span>,
-    <span class='normal'>date_modification</span>,
     <span class='foreign'>#cip 3</span>,
     <span class='normal'>date_effectuation</span>
   )</summary>
   <ul>
     <li>Le champ <i>id_réservation</i> constitue la clé primaire de la table. C'était déjà un identifiant de l'entité <i>RÉSERVATION</i>.</li>
     <li>Les champs <i>date_début</i>, <i>date_fin</i> et <i>description</i> étaient déjà de simples attributs de l'entité <i>RÉSERVATION</i>.</li>
-    <li>Les champs <i>pavillon</i> et <i>numéro</i> sont des clés étrangères. Ils ont migré par l'association de dépendance fonctionnelle <i>CONCERNER</i> à partir de l'entité <i>LOCAL</i> en perdant leur caractère identifiant.</li>
-    <li>Le champ <i>cip 1</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>SUPPRIMER</i> à partir de l'entité <i>MEMBRE</i> en perdant son caractère identifiant.</li>
-    <li>Le champ <i>date_suppression</i> a migré à partir de l'association de dépendance fonctionnelle <i>SUPPRIMER</i>.</li>
-    <li>Le champ <i>cip 2</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>MODIFIER</i> à partir de l'entité <i>MEMBRE</i> en perdant son caractère identifiant.</li>
+    <li>Le champ <i>cip 1</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>MODIFIER</i> à partir de l'entité <i>MEMBRE</i> en perdant son caractère identifiant.</li>
     <li>Le champ <i>date_modification</i> a migré à partir de l'association de dépendance fonctionnelle <i>MODIFIER</i>.</li>
+    <li>Le champ <i>cip 2</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>SUPPRIMER</i> à partir de l'entité <i>MEMBRE</i> en perdant son caractère identifiant.</li>
+    <li>Le champ <i>date_suppression</i> a migré à partir de l'association de dépendance fonctionnelle <i>SUPPRIMER</i>.</li>
+    <li>Les champs <i>pavillon</i> et <i>numéro</i> sont des clés étrangères. Ils ont migré par l'association de dépendance fonctionnelle <i>CONCERNER</i> à partir de l'entité <i>LOCAL</i> en perdant leur caractère identifiant.</li>
     <li>Le champ <i>cip 3</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>EFFECTUER</i> à partir de l'entité <i>MEMBRE</i> en perdant son caractère identifiant.</li>
     <li>Le champ <i>date_effectuation</i> a migré à partir de l'association de dépendance fonctionnelle <i>EFFECTUER</i>.</li>
   </ul></details>
