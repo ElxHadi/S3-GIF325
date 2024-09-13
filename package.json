@@ -1,0 +1,23 @@
+{
+  "name": "csv-to-postgres",
+  "version": "1.0.0",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "tsc",
+    "start": "node dist/src/main.js",
+    "compile": "npm run clean && npm run build",
+    "run": "npm run compile && npm start"
+  },
+  "dependencies": {
+    "csv-parse": "^5.0.0",
+    "dotenv": "^16.0.0",
+    "knex": "^2.5.0",
+    "pg": "^8.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.0.0",
+    "rimraf": "^5.0.0"
+  }
+}
