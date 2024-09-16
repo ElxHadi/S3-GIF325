@@ -1,27 +1,34 @@
 :
+CUBICULE: numero_cubicule
 :
 :
-MODIFIER, 0N MEMBRE, 11 RÉSERVATION:date_modification
-APPARTENIR, 11 MEMBRE, 1N DÉPARTEMENT
-DÉPARTEMENT: id_département, nom_département
-
 :
-CONTENIR, 1N LOCAL, 11 LOCAL
-RÉSERVATION: id_réservation, date_début, date_fin, description
-SUPPRIMER, 0N MEMBRE, 11 RÉSERVATION:date_suppression
-MEMBRE: cip, nom, prénom, émail
 :
 
+CARACTÉRISTIQUE: id_caracteristique, nom_caracteristique
+CONTENIR, 1N LOCAL, 11 CUBICULE
 :
-LOCAL: pavillon, _numéro, catégorie, capacité
-CONCERNER, 11 RÉSERVATION, 0N LOCAL
-CONSULTER, 0N MEMBRE, 0N RÉSERVATION:date_consultation
-POSSEDER, 14 MEMBRE, 0N STATUT
-STATUT: id_statut, nom_statut
+:
+:
+MODIFIER, 0N MEMBRE, 0N RESERVATION:date_modification
 
-CARACTÉRISTIQUE: code_caractéristique, nom_caractéristique
 ATTRIBUER, 1N LOCAL, 0N CARACTÉRISTIQUE:effectif
+LOCAL: pavillon, _numero, capacite
+CONCERNER, 11 RESERVATION, 0N LOCAL
+RESERVATION: id_reservation, date_debut, date_fin, description
+SUPPRIMER, 0N MEMBRE, 0N RESERVATION:date_suppression
+DEPARTEMENT: id_departement, nom_departement
+
+CATEGORIE: id_categorie, nom_categorie
+CORRESPONDRE, 11 LOCAL, 0N CATEGORIE
 :
-EFFECTUER, 0N MEMBRE, 11 RÉSERVATION:date_effectuation
+EFFECTUER, 0N MEMBRE, 11 RESERVATION:date_effectuation
+MEMBRE: cip, nom, prenom, email
+APPARTENIR, 11 MEMBRE, 1N DEPARTEMENT
+
 :
+:
+CONSULTER, 0N MEMBRE, 0N RESERVATION:date_consultation
+STATUT: id_statut, nom_statut
+POSSEDER, 14 MEMBRE, 0N STATUT
 :
