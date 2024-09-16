@@ -43,20 +43,16 @@ CREATE TABLE MEMBRE (
   FOREIGN KEY (id_departement) REFERENCES DEPARTEMENT (id_departement)
 );
 
--- Table for RESERVATION
-CREATE TABLE RESERVATION (
-  id_reservation SERIAL PRIMARY KEY,
-  date_debut TIMESTAMP, -- Assuming date and time are required
-  date_fin TIMESTAMP, -- Assuming date and time are required
+CREATE TABLE RESERVER (
+  cip VARCHAR(8) PRIMARY KEY,
+  pavillon VARCHAR(2) PRIMARY KEY,
+  numero VARCHAR(4) PRIMARY KEY,
+  date_debut TIMESTAMP PRIMARY KEY, -- Assuming date and time are required
+  date_fin TIMESTAMP PRIMARY KEY, -- Assuming date and time are required
   description VARCHAR(255), -- Assuming description may be longer text
-  pavillon VARCHAR(2) NOT NULL,
-  numero VARCHAR(4) NOT NULL,
-  cip VARCHAR(8) NOT NULL,
-  date_effectuation TIMESTAMP, -- Assuming date and time are required
   FOREIGN KEY (cip) REFERENCES MEMBRE (cip),
   FOREIGN KEY (pavillon, numero) REFERENCES LOCAL (pavillon, numero)
 );
-
 -- Table for CUBICULE
 CREATE TABLE CUBICULE (
   numero_cubicule SERIAL PRIMARY KEY,
@@ -76,16 +72,6 @@ CREATE TABLE ATTRIBUER (
   FOREIGN KEY (pavillon, numero) REFERENCES LOCAL (pavillon, numero)
 );
 
--- Table for MODIFIER
-CREATE TABLE MODIFIER (
-  cip VARCHAR(8) NOT NULL,
-  id_reservation INTEGER NOT NULL, -- Changed to INTEGER
-  date_modification TIMESTAMP, -- Assuming date and time are required
-  PRIMARY KEY (cip, id_reservation),
-  FOREIGN KEY (id_reservation) REFERENCES RESERVATION (id_reservation),
-  FOREIGN KEY (cip) REFERENCES MEMBRE (cip)
-);
-
 -- Table for POSSEDER
 CREATE TABLE POSSEDER (
   cip VARCHAR(8) NOT NULL,
@@ -95,22 +81,3 @@ CREATE TABLE POSSEDER (
   FOREIGN KEY (cip) REFERENCES MEMBRE (cip)
 );
 
--- Table for CONSULTER
-CREATE TABLE CONSULTER (
-  cip VARCHAR(8) NOT NULL,
-  id_reservation INTEGER NOT NULL, -- Changed to INTEGER
-  date_consultation TIMESTAMP, -- Assuming date and time are required
-  PRIMARY KEY (cip, id_reservation),
-  FOREIGN KEY (id_reservation) REFERENCES RESERVATION (id_reservation),
-  FOREIGN KEY (cip) REFERENCES MEMBRE (cip)
-);
-
--- Table for SUPPRIMER
-CREATE TABLE SUPPRIMER (
-  cip VARCHAR(8) NOT NULL,
-  id_reservation INTEGER NOT NULL, -- Changed to INTEGER
-  date_suppression TIMESTAMP, -- Assuming date and time are required
-  PRIMARY KEY (cip, id_reservation),
-  FOREIGN KEY (id_reservation) REFERENCES RESERVATION (id_reservation),
-  FOREIGN KEY (cip) REFERENCES MEMBRE (cip)
-);

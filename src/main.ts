@@ -3,7 +3,7 @@ import path from "path";
 import { parse } from "csv-parse";
 import knex from "../knex";
 
-const csvPath = path.resolve(__dirname, "../../data/posseder.csv");
+const csvPath = path.resolve(__dirname, "../../data/csv/attribuer.csv");
 
 async function importCSV() {
     const parser = fs
@@ -11,9 +11,11 @@ async function importCSV() {
         .pipe(parse({ columns: true, skip_empty_lines: true }));
 
     for await (const record of parser) {
-        await knex("posseder").insert({
-            cip: record.cip,
-            id_statut: record.id_statut
+        await knex("attribuer").insert({
+            pavillon: record.pavillon,
+            numero: record.numero,
+            id_caracteristique: record.id_caracteristique,
+            effectif: record.effectif,
         });
     }
 
