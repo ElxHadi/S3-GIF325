@@ -94,6 +94,61 @@ $$;
 ALTER FUNCTION public.check_permission(user_cip character varying, local_pavillon character varying, local_numero character varying) OWNER TO postgres;
 
 --
+-- Name: generate_time_slots(timestamp without time zone, timestamp without time zone); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.generate_time_slots(date_debut timestamp without time zone, date_fin timestamp without time zone) RETURNS TABLE(time_slot timestamp without time zone)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RETURN QUERY
+    SELECT generate_series(date_debut, date_fin, '15 minutes'::interval) AS time_slot;
+END;
+$$;
+
+
+ALTER FUNCTION public.generate_time_slots(date_debut timestamp without time zone, date_fin timestamp without time zone) OWNER TO postgres;
+
+--
+-- Name: get_local_data(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.get_local_data(id_categorie integer) RETURNS TABLE(pavillon character varying, numero character varying)
+    LANGUAGE plpgsql
+    AS $$
+#variable_conflict use_variable
+BEGIN
+    RETURN QUERY
+    SELECT l.pavillon, l.numero
+    FROM local l
+    WHERE l.id_categorie = id_categorie;
+END;
+$$;
+
+
+ALTER FUNCTION public.get_local_data(id_categorie integer) OWNER TO postgres;
+
+--
+-- Name: get_reservation_data(timestamp without time zone, timestamp without time zone); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.get_reservation_data(start_timestamp timestamp without time zone, end_timestamp timestamp without time zone) RETURNS TABLE(pavillon character varying, numero character varying, date_debut timestamp without time zone, date_fin timestamp without time zone, description character varying)
+    LANGUAGE plpgsql
+    AS $$
+#variable_conflict use_variable
+BEGIN
+    RETURN QUERY
+    SELECT r.pavillon, r.numero, r.date_debut, r.date_fin, r.description
+    FROM reserver r
+    WHERE r.date_debut < end_timestamp
+    AND r.date_fin > start_timestamp;
+END;
+$$;
+
+
+ALTER FUNCTION public.get_reservation_data(start_timestamp timestamp without time zone, end_timestamp timestamp without time zone) OWNER TO postgres;
+
+--
 -- Name: handle_reservation(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -129,6 +184,111 @@ $$;
 
 
 ALTER FUNCTION public.handle_reservation() OWNER TO postgres;
+
+--
+-- Name: log_delete_reserver(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.log_delete_reserver() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    INSERT INTO reservation_log (
+        action_type, id_reservation, performed_by,action_date
+    )
+    VALUES (
+        'DELETE', OLD.id_reservation, OLD.cip,DATE_TRUNC('second', NOW())
+    );
+    RETURN OLD;
+END;
+$$;
+
+
+ALTER FUNCTION public.log_delete_reserver() OWNER TO postgres;
+
+--
+-- Name: log_insert_reserver(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.log_insert_reserver() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    INSERT INTO reservation_log (
+        action_type, id_reservation, performed_by, action_date 
+    )
+    VALUES (
+        'INSERT', NEW.id_reservation, NEW.cip, DATE_TRUNC('second', NOW())
+	);
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.log_insert_reserver() OWNER TO postgres;
+
+--
+-- Name: log_update_reserver(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.log_update_reserver() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    INSERT INTO reservation_log (
+        action_type, id_reservation, performed_by,action_date
+    )
+    VALUES (
+        'UPDATE', NEW.id_reservation, NEW.cip, DATE_TRUNC('second', NOW())
+    );
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.log_update_reserver() OWNER TO postgres;
+
+--
+-- Name: tableau(timestamp without time zone, timestamp without time zone, integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.tableau(q_date_debut timestamp without time zone, q_date_fin timestamp without time zone, q_id_categorie integer) RETURNS TABLE(pavillon character varying, numero character varying, time_slot timestamp without time zone, description character varying)
+    LANGUAGE plpgsql
+    AS $$
+#variable_conflict use_column
+BEGIN
+    RETURN QUERY
+    WITH
+    time_slots AS (
+        SELECT time_slot
+        FROM generate_time_slots(q_date_debut, q_date_fin)
+    ),
+    local_data AS (
+        SELECT pavillon, numero
+        FROM get_local_data(q_id_categorie)
+    ),
+    reservation_data AS (
+        SELECT pavillon, numero, date_debut, date_fin, description
+        FROM get_reservation_data(q_date_debut, q_date_fin)
+    )
+    SELECT
+        l.pavillon,
+        l.numero,
+        ts.time_slot,
+        COALESCE(r.description, NULL) AS description
+    FROM time_slots ts
+    CROSS JOIN local_data l
+    LEFT JOIN reservation_data r
+        ON l.pavillon = r.pavillon
+        AND l.numero = r.numero
+        AND ts.time_slot >= r.date_debut
+        AND ts.time_slot < r.date_fin
+    ORDER BY l.pavillon, l.numero, ts.time_slot;
+END;
+$$;
+
+
+ALTER FUNCTION public.tableau(q_date_debut timestamp without time zone, q_date_fin timestamp without time zone, q_id_categorie integer) OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -305,6 +465,43 @@ CREATE TABLE public.posseder (
 ALTER TABLE public.posseder OWNER TO postgres;
 
 --
+-- Name: reservation_log; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.reservation_log (
+    log_id integer NOT NULL,
+    action_type character varying(10),
+    id_reservation smallint,
+    performed_by character varying(8),
+    action_date timestamp without time zone DEFAULT date_trunc('second'::text, now())
+);
+
+
+ALTER TABLE public.reservation_log OWNER TO postgres;
+
+--
+-- Name: reservation_log_log_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.reservation_log_log_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.reservation_log_log_id_seq OWNER TO postgres;
+
+--
+-- Name: reservation_log_log_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.reservation_log_log_id_seq OWNED BY public.reservation_log.log_id;
+
+
+--
 -- Name: reserver; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -408,6 +605,13 @@ ALTER TABLE ONLY public.categorie ALTER COLUMN id_categorie SET DEFAULT nextval(
 --
 
 ALTER TABLE ONLY public.departement ALTER COLUMN id_departement SET DEFAULT nextval('public.departement_id_departement_seq'::regclass);
+
+
+--
+-- Name: reservation_log log_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.reservation_log ALTER COLUMN log_id SET DEFAULT nextval('public.reservation_log_log_id_seq'::regclass);
 
 
 --
@@ -529,6 +733,14 @@ ALTER TABLE ONLY public.posseder
 
 
 --
+-- Name: reservation_log reservation_log_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.reservation_log
+    ADD CONSTRAINT reservation_log_pkey PRIMARY KEY (log_id);
+
+
+--
 -- Name: reserver reserver_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -567,10 +779,31 @@ CREATE INDEX idx_attribuer_pavillon_numero ON public.attribuer USING btree (pavi
 
 
 --
+-- Name: idx_caracteristique_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_caracteristique_id ON public.caracteristique USING btree (id_caracteristique);
+
+
+--
+-- Name: idx_categorie_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_categorie_id ON public.categorie USING btree (id_categorie);
+
+
+--
 -- Name: idx_cubicule_pavillon_numero; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX idx_cubicule_pavillon_numero ON public.cubicule USING btree (pavillon, numero);
+
+
+--
+-- Name: idx_departement_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_departement_id ON public.departement USING btree (id_departement);
 
 
 --
@@ -616,10 +849,59 @@ CREATE INDEX idx_posseder_id_statut ON public.posseder USING btree (id_statut);
 
 
 --
+-- Name: idx_reserver_cip; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_reserver_cip ON public.reserver USING btree (cip);
+
+
+--
+-- Name: idx_reserver_date_debut_fin; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_reserver_date_debut_fin ON public.reserver USING btree (date_debut, date_fin);
+
+
+--
+-- Name: idx_reserver_pavillon_numero; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_reserver_pavillon_numero ON public.reserver USING btree (pavillon, numero);
+
+
+--
+-- Name: idx_statut_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_statut_id ON public.statut USING btree (id_statut);
+
+
+--
 -- Name: reserver trg_handle_reservation; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
-CREATE TRIGGER trg_handle_reservation BEFORE INSERT OR UPDATE ON public.reserver FOR EACH ROW EXECUTE FUNCTION public.handle_reservation();
+CREATE TRIGGER trg_handle_reservation BEFORE INSERT ON public.reserver FOR EACH ROW EXECUTE FUNCTION public.handle_reservation();
+
+
+--
+-- Name: reserver trg_log_delete_reserver; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER trg_log_delete_reserver AFTER DELETE ON public.reserver FOR EACH ROW EXECUTE FUNCTION public.log_delete_reserver();
+
+
+--
+-- Name: reserver trg_log_insert_reserver; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER trg_log_insert_reserver AFTER INSERT ON public.reserver FOR EACH ROW EXECUTE FUNCTION public.log_insert_reserver();
+
+
+--
+-- Name: reserver trg_log_update_reserver; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER trg_log_update_reserver AFTER UPDATE ON public.reserver FOR EACH ROW EXECUTE FUNCTION public.log_update_reserver();
 
 
 --
