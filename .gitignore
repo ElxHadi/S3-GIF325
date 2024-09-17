@@ -1,0 +1,8 @@
+MCD/*.json
+MCD/*.svg
+MCD/MCD_mld.mcd
+
+
+node_modules/
+dist/
+.env
