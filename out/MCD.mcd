@@ -1,0 +1,34 @@
+:
+CATEGORIE: id_categorie, nom_categorie
+CORRESPONDRE, 11 LOCAL, 0N CATEGORIE
+:
+:
+:
+
+CARACTÉRISTIQUE: id_caracteristique, nom_caracteristique
+ATTRIBUER, 1N LOCAL, 0N CARACTÉRISTIQUE:effectif
+LOCAL: pavillon, _numero, capacite
+RESERVER, 1N MEMBRE, 1N LOCAL:date_debut,date_fin,description
+:
+:
+
+:
+CUBICULE: numero_cubicule
+CONTENIR, 1N LOCAL, 11 CUBICULE
+MEMBRE: cip, nom, prenom, email
+POSSEDER, 14 MEMBRE, 1N STATUT
+STATUT: id_statut, nom_statut
+
+:
+:
+:
+APPARTENIR, 11 MEMBRE, 1N DEPARTEMENT
+:
+:
+
+:
+:
+:
+DEPARTEMENT: id_departement, nom_departement
+:
+:
